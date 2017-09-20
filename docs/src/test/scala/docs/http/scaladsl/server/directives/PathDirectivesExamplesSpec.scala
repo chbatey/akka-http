@@ -43,7 +43,7 @@ class PathDirectivesExamplesSpec extends RoutingSpec {
 
   //#completeWithUnmatchedPath
   val completeWithUnmatchedPath =
-    extractUnmatchedPath { p =>
+    extractUnmatchedPath { p ⇒
       complete(p.toString)
     }
 
@@ -62,7 +62,7 @@ class PathDirectivesExamplesSpec extends RoutingSpec {
           pathEnd {
             complete("/ball")
           } ~
-            path(IntNumber) { int =>
+            path(IntNumber) { int ⇒
               complete(if (int % 2 == 0) "even ball" else "odd ball")
             }
         }
@@ -147,7 +147,7 @@ class PathDirectivesExamplesSpec extends RoutingSpec {
         pathEnd {
           complete("/ball")
         } ~
-          path(IntNumber) { int =>
+          path(IntNumber) { int ⇒
             complete(if (int % 2 == 0) "even ball" else "odd ball")
           }
       }
@@ -196,7 +196,7 @@ class PathDirectivesExamplesSpec extends RoutingSpec {
           pathSingleSlash {
             complete("/ball/")
           } ~
-            path(IntNumber) { int =>
+            path(IntNumber) { int ⇒
               complete(if (int % 2 == 0) "even ball" else "odd ball")
             }
         }

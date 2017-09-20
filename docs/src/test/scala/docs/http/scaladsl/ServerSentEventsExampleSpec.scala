@@ -29,9 +29,9 @@ final class ServerSentEventsExampleSpec extends RoutingSpec with Directives with
           complete {
             Source
               .tick(2.seconds, 2.seconds, NotUsed)
-              .map(_ => LocalTime.now())
-              .map(time => ServerSentEvent(ISO_LOCAL_TIME.format(time)))
-              .keepAlive(1.second, () => ServerSentEvent.heartbeat)
+              .map(_ ⇒ LocalTime.now())
+              .map(time ⇒ ServerSentEvent(ISO_LOCAL_TIME.format(time)))
+              .keepAlive(1.second, () ⇒ ServerSentEvent.heartbeat)
           }
         }
       }

@@ -15,7 +15,7 @@ class HeaderDirectivesExamplesSpec extends RoutingSpec with Inside {
   "headerValueByName-0" in {
     //#headerValueByName-0
     val route =
-      headerValueByName("X-User-Id") { userId =>
+      headerValueByName("X-User-Id") { userId ⇒
         complete(s"The user is $userId")
       }
 
@@ -32,13 +32,13 @@ class HeaderDirectivesExamplesSpec extends RoutingSpec with Inside {
   }
   "headerValue-0" in {
     //#headerValue-0
-    def extractHostPort: HttpHeader => Option[Int] = {
-      case h: `Host` => Some(h.port)
-      case x         => None
+    def extractHostPort: HttpHeader ⇒ Option[Int] = {
+      case h: `Host` ⇒ Some(h.port)
+      case x         ⇒ None
     }
 
     val route =
-      headerValue(extractHostPort) { port =>
+      headerValue(extractHostPort) { port ⇒
         complete(s"The port was $port")
       }
 
@@ -55,13 +55,13 @@ class HeaderDirectivesExamplesSpec extends RoutingSpec with Inside {
   "headerValue-or-default-0" in {
     //#headerValue-or-default-0
     val exampleHeaderValue = "exampleHeaderValue".toLowerCase
-    def extractExampleHeader: HttpHeader => Option[String] = {
-      case HttpHeader(`exampleHeaderValue`, value) => Some(value)
-      case _                                       => None
+    def extractExampleHeader: HttpHeader ⇒ Option[String] = {
+      case HttpHeader(`exampleHeaderValue`, value) ⇒ Some(value)
+      case _                                       ⇒ None
     }
 
     val route =
-      (headerValue(extractExampleHeader) | provide("newValue")) { value =>
+      (headerValue(extractExampleHeader) | provide("newValue")) { value ⇒
         complete(s"headerValue $value")
       }
 
@@ -77,21 +77,21 @@ class HeaderDirectivesExamplesSpec extends RoutingSpec with Inside {
   }
   "optionalHeaderValue-0" in {
     //#optionalHeaderValue-0
-    def extractHostPort: HttpHeader => Option[Int] = {
-      case h: `Host` => Some(h.port)
-      case x         => None
+    def extractHostPort: HttpHeader ⇒ Option[Int] = {
+      case h: `Host` ⇒ Some(h.port)
+      case x         ⇒ None
     }
 
     val route =
       optionalHeaderValue(extractHostPort) {
-        case Some(port) => complete(s"The port was $port")
-        case None       => complete(s"The port was not provided explicitly")
+        case Some(port) ⇒ complete(s"The port was $port")
+        case None       ⇒ complete(s"The port was not provided explicitly")
       } ~ // can also be written as:
-        optionalHeaderValue(extractHostPort) { port =>
+        optionalHeaderValue(extractHostPort) { port ⇒
           complete {
             port match {
-              case Some(p) => s"The port was $p"
-              case _       => "The port was not provided explicitly"
+              case Some(p) ⇒ s"The port was $p"
+              case _       ⇒ "The port was not provided explicitly"
             }
           }
         }
@@ -109,14 +109,14 @@ class HeaderDirectivesExamplesSpec extends RoutingSpec with Inside {
     //#optionalHeaderValueByName-0
     val route =
       optionalHeaderValueByName("X-User-Id") {
-        case Some(userId) => complete(s"The user is $userId")
-        case None         => complete(s"No user was provided")
+        case Some(userId) ⇒ complete(s"The user is $userId")
+        case None         ⇒ complete(s"No user was provided")
       } ~ // can also be written as:
-        optionalHeaderValueByName("port") { port =>
+        optionalHeaderValueByName("port") { port ⇒
           complete {
             port match {
-              case Some(p) => s"The user is $p"
-              case _       => "No user was provided"
+              case Some(p) ⇒ s"The user is $p"
+              case _       ⇒ "No user was provided"
             }
           }
         }
@@ -133,11 +133,11 @@ class HeaderDirectivesExamplesSpec extends RoutingSpec with Inside {
   "headerValuePF-0" in {
     //#headerValuePF-0
     def extractHostPort: PartialFunction[HttpHeader, Int] = {
-      case h: `Host` => h.port
+      case h: `Host` ⇒ h.port
     }
 
     val route =
-      headerValuePF(extractHostPort) { port =>
+      headerValuePF(extractHostPort) { port ⇒
         complete(s"The port was $port")
       }
 
@@ -154,19 +154,19 @@ class HeaderDirectivesExamplesSpec extends RoutingSpec with Inside {
   "optionalHeaderValuePF-0" in {
     //#optionalHeaderValuePF-0
     def extractHostPort: PartialFunction[HttpHeader, Int] = {
-      case h: `Host` => h.port
+      case h: `Host` ⇒ h.port
     }
 
     val route =
       optionalHeaderValuePF(extractHostPort) {
-        case Some(port) => complete(s"The port was $port")
-        case None       => complete(s"The port was not provided explicitly")
+        case Some(port) ⇒ complete(s"The port was $port")
+        case None       ⇒ complete(s"The port was not provided explicitly")
       } ~ // can also be written as:
-        optionalHeaderValuePF(extractHostPort) { port =>
+        optionalHeaderValuePF(extractHostPort) { port ⇒
           complete {
             port match {
-              case Some(p) => s"The port was $p"
-              case _       => "The port was not provided explicitly"
+              case Some(p) ⇒ s"The port was $p"
+              case _       ⇒ "The port was not provided explicitly"
             }
           }
         }
@@ -183,7 +183,7 @@ class HeaderDirectivesExamplesSpec extends RoutingSpec with Inside {
   "headerValueByType-0" in {
     //#headerValueByType-0
     val route =
-      headerValueByType[Origin]() { origin =>
+      headerValueByType[Origin]() { origin ⇒
         complete(s"The first origin was ${origin.origins.head}")
       }
 
@@ -197,7 +197,7 @@ class HeaderDirectivesExamplesSpec extends RoutingSpec with Inside {
 
     // reject a request if no header of the given type is present
     Get("abc") ~> route ~> check {
-      inside(rejection) { case MissingHeaderRejection("Origin") => }
+      inside(rejection) { case MissingHeaderRejection("Origin") ⇒ }
     }
     //#headerValueByType-0
   }
@@ -205,8 +205,8 @@ class HeaderDirectivesExamplesSpec extends RoutingSpec with Inside {
     //#optionalHeaderValueByType-0
     val route =
       optionalHeaderValueByType[Origin]() {
-        case Some(origin) => complete(s"The first origin was ${origin.origins.head}")
-        case None         => complete("No Origin header found.")
+        case Some(origin) ⇒ complete(s"The first origin was ${origin.origins.head}")
+        case None         ⇒ complete("No Origin header found.")
       }
 
     val originHeader = Origin(HttpOrigin("http://localhost:8080"))

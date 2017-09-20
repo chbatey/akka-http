@@ -33,7 +33,7 @@ class HttpServerExampleSpec extends WordSpec with Matchers
     val serverSource: Source[Http.IncomingConnection, Future[Http.ServerBinding]] =
       Http().bind(interface = "localhost", port = 8080)
     val bindingFuture: Future[Http.ServerBinding] =
-      serverSource.to(Sink.foreach { connection => // foreach materializes the source
+      serverSource.to(Sink.foreach { connection ⇒ // foreach materializes the source
         println("Accepted new connection from " + connection.remoteAddress)
         // ... and then actually handle the connection
       }).run()
@@ -66,7 +66,7 @@ class HttpServerExampleSpec extends WordSpec with Matchers
         val bindingFuture: Future[ServerBinding] =
           Http().bindAndHandle(handler, host, port)
 
-        bindingFuture.failed.foreach { ex =>
+        bindingFuture.failed.foreach { ex ⇒
           log.error(ex, "Failed to bind to {}:{}!", host, port)
         }
       }
@@ -77,7 +77,7 @@ class HttpServerExampleSpec extends WordSpec with Matchers
   // mock values:
   val handleConnections = {
     import akka.stream.scaladsl.Sink
-    Sink.ignore.mapMaterializedValue(_ => Future.failed(new Exception("")))
+    Sink.ignore.mapMaterializedValue(_ ⇒ Future.failed(new Exception("")))
   }
 
   "binding-failure-handling" in compileOnlySpec {
@@ -102,7 +102,7 @@ class HttpServerExampleSpec extends WordSpec with Matchers
       .to(handleConnections) // Sink[Http.IncomingConnection, _]
       .run()
 
-    bindingFuture.failed.foreach { ex =>
+    bindingFuture.failed.foreach { ex ⇒
       log.error(ex, "Failed to bind to {}:{}!", host, port)
     }
     //#binding-failure-handling
@@ -131,8 +131,8 @@ class HttpServerExampleSpec extends WordSpec with Matchers
     val failureMonitor: ActorRef = system.actorOf(MyExampleMonitoringActor.props)
 
     val reactToTopLevelFailures = Flow[IncomingConnection]
-      .watchTermination()((_, termination) => termination.failed.foreach {
-        cause => failureMonitor ! cause
+      .watchTermination()((_, termination) ⇒ termination.failed.foreach {
+        cause ⇒ failureMonitor ! cause
       })
 
     serverSource
@@ -159,20 +159,20 @@ class HttpServerExampleSpec extends WordSpec with Matchers
 
     val reactToConnectionFailure = Flow[HttpRequest]
       .recover[HttpRequest] {
-        case ex =>
+        case ex ⇒
           // handle the failure somehow
           throw ex
       }
 
     val httpEcho = Flow[HttpRequest]
       .via(reactToConnectionFailure)
-      .map { request =>
+      .map { request ⇒
         // simple streaming (!) "echo" response:
         HttpResponse(entity = HttpEntity(ContentTypes.`text/plain(UTF-8)`, request.entity.dataBytes))
       }
 
     serverSource
-      .runForeach { con =>
+      .runForeach { con ⇒
         con.handleWith(httpEcho)
       }
     //#connection-stream-failure-handling
@@ -193,25 +193,25 @@ class HttpServerExampleSpec extends WordSpec with Matchers
 
     val serverSource = Http().bind(interface = "localhost", port = 8080)
 
-    val requestHandler: HttpRequest => HttpResponse = {
-      case HttpRequest(GET, Uri.Path("/"), _, _, _) =>
+    val requestHandler: HttpRequest ⇒ HttpResponse = {
+      case HttpRequest(GET, Uri.Path("/"), _, _, _) ⇒
         HttpResponse(entity = HttpEntity(
           ContentTypes.`text/html(UTF-8)`,
           "<html><body>Hello world!</body></html>"))
 
-      case HttpRequest(GET, Uri.Path("/ping"), _, _, _) =>
+      case HttpRequest(GET, Uri.Path("/ping"), _, _, _) ⇒
         HttpResponse(entity = "PONG!")
 
-      case HttpRequest(GET, Uri.Path("/crash"), _, _, _) =>
+      case HttpRequest(GET, Uri.Path("/crash"), _, _, _) ⇒
         sys.error("BOOM!")
 
-      case r: HttpRequest =>
+      case r: HttpRequest ⇒
         r.discardEntityBytes() // important to drain incoming HTTP Entity stream
         HttpResponse(404, entity = "Unknown resource!")
     }
 
     val bindingFuture: Future[Http.ServerBinding] =
-      serverSource.to(Sink.foreach { connection =>
+      serverSource.to(Sink.foreach { connection ⇒
         println("Accepted new connection from " + connection.remoteAddress)
 
         connection handleWithSyncHandler requestHandler
@@ -238,19 +238,19 @@ class HttpServerExampleSpec extends WordSpec with Matchers
         // needed for the future map/flatmap in the end
         implicit val executionContext = system.dispatcher
 
-        val requestHandler: HttpRequest => HttpResponse = {
-          case HttpRequest(GET, Uri.Path("/"), _, _, _) =>
+        val requestHandler: HttpRequest ⇒ HttpResponse = {
+          case HttpRequest(GET, Uri.Path("/"), _, _, _) ⇒
             HttpResponse(entity = HttpEntity(
               ContentTypes.`text/html(UTF-8)`,
               "<html><body>Hello world!</body></html>"))
 
-          case HttpRequest(GET, Uri.Path("/ping"), _, _, _) =>
+          case HttpRequest(GET, Uri.Path("/ping"), _, _, _) ⇒
             HttpResponse(entity = "PONG!")
 
-          case HttpRequest(GET, Uri.Path("/crash"), _, _, _) =>
+          case HttpRequest(GET, Uri.Path("/crash"), _, _, _) ⇒
             sys.error("BOOM!")
 
-          case r: HttpRequest =>
+          case r: HttpRequest ⇒
             r.discardEntityBytes() // important to drain incoming HTTP Entity stream
             HttpResponse(404, entity = "Unknown resource!")
         }
@@ -260,7 +260,7 @@ class HttpServerExampleSpec extends WordSpec with Matchers
         StdIn.readLine() // let it run until user presses return
         bindingFuture
           .flatMap(_.unbind()) // trigger unbinding from the port
-          .onComplete(_ => system.terminate()) // and shutdown when done
+          .onComplete(_ ⇒ system.terminate()) // and shutdown when done
 
       }
     }

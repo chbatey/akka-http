@@ -26,7 +26,7 @@ class FileUploadDirectivesExamplesSpec extends RoutingSpec {
 
     val route =
       uploadedFile("csv") {
-        case (metadata, file) =>
+        case (metadata, file) ⇒
           // do something with the file and file metadata ...
           file.delete()
           complete(StatusCodes.OK)
@@ -55,7 +55,7 @@ class FileUploadDirectivesExamplesSpec extends RoutingSpec {
 
     val route =
       storeUploadedFile("csv", tempDestination) {
-        case (metadata, file) =>
+        case (metadata, file) ⇒
           // do something with the file and file metadata ...
           file.delete()
           complete(StatusCodes.OK)
@@ -83,9 +83,9 @@ class FileUploadDirectivesExamplesSpec extends RoutingSpec {
       File.createTempFile(fileInfo.fileName, ".tmp")
 
     val route =
-      storeUploadedFiles("csv", tempDestination) { files =>
+      storeUploadedFiles("csv", tempDestination) { files ⇒
         val finalStatus = files.foldLeft(StatusCodes.OK) {
-          case (status, (metadata, file)) =>
+          case (status, (metadata, file)) ⇒
             // do something with the file and file metadata ...
             file.delete()
             status
@@ -118,11 +118,11 @@ class FileUploadDirectivesExamplesSpec extends RoutingSpec {
 
     // adding integers as a service
     val route =
-      extractRequestContext { ctx =>
+      extractRequestContext { ctx ⇒
         implicit val materializer = ctx.materializer
 
         fileUpload("csv") {
-          case (metadata, byteSource) =>
+          case (metadata, byteSource) ⇒
 
             val sumF: Future[Int] =
               // sum the numbers as they arrive so that we can
@@ -130,9 +130,9 @@ class FileUploadDirectivesExamplesSpec extends RoutingSpec {
               byteSource.via(Framing.delimiter(ByteString("\n"), 1024))
                 .mapConcat(_.utf8String.split(",").toVector)
                 .map(_.toInt)
-                .runFold(0) { (acc, n) => acc + n }
+                .runFold(0) { (acc, n) ⇒ acc + n }
 
-            onSuccess(sumF) { sum => complete(s"Sum: $sum") }
+            onSuccess(sumF) { sum ⇒ complete(s"Sum: $sum") }
         }
       }
 
@@ -156,24 +156,24 @@ class FileUploadDirectivesExamplesSpec extends RoutingSpec {
 
     // adding integers as a service
     val route =
-      extractRequestContext { ctx =>
+      extractRequestContext { ctx ⇒
         implicit val materializer = ctx.materializer
 
         fileUploadAll("csv") {
-          case byteSources =>
+          case byteSources ⇒
             // accumulate the sum of each file
             val sumF: Future[Int] = byteSources.foldLeft(Future.successful(0)) {
-              case (accF, (metadata, byteSource)) =>
+              case (accF, (metadata, byteSource)) ⇒
                 // sum the numbers as they arrive
                 val intF = byteSource.via(Framing.delimiter(ByteString("\n"), 1024))
                   .mapConcat(_.utf8String.split(",").toVector)
                   .map(_.toInt)
-                  .runFold(0) { (acc, n) => acc + n }
+                  .runFold(0) { (acc, n) ⇒ acc + n }
 
                 accF.flatMap(acc ⇒ intF.map(acc + _))
             }
 
-            onSuccess(sumF) { sum => complete(s"Sum: $sum") }
+            onSuccess(sumF) { sum ⇒ complete(s"Sum: $sum") }
         }
       }
 

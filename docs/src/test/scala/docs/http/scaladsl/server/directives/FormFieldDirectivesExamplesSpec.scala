@@ -12,7 +12,7 @@ class FormFieldDirectivesExamplesSpec extends RoutingSpec {
   "formFields" in {
     //#formFields
     val route =
-      formFields('color, 'age.as[Int]) { (color, age) =>
+      formFields('color, 'age.as[Int]) { (color, age) ⇒
         complete(s"The color is '$color' and the age ten years ago was ${age - 10}")
       }
 
@@ -30,10 +30,10 @@ class FormFieldDirectivesExamplesSpec extends RoutingSpec {
   "formField" in {
     //#formField
     val route =
-      formField('color) { color =>
+      formField('color) { color ⇒
         complete(s"The color is '$color'")
       } ~
-        formField('id.as[Int]) { id =>
+        formField('id.as[Int]) { id ⇒
           complete(s"The id is '$id'")
         }
 
@@ -51,7 +51,7 @@ class FormFieldDirectivesExamplesSpec extends RoutingSpec {
   "formFieldMap" in {
     //#formFieldMap
     val route =
-      formFieldMap { fields =>
+      formFieldMap { fields ⇒
         def formFieldString(formField: (String, String)): String =
           s"""${formField._1} = '${formField._2}'"""
         complete(s"The form fields are ${fields.map(formFieldString).mkString(", ")}")
@@ -69,9 +69,9 @@ class FormFieldDirectivesExamplesSpec extends RoutingSpec {
   "formFieldMultiMap" in {
     //#formFieldMultiMap
     val route =
-      formFieldMultiMap { fields =>
+      formFieldMultiMap { fields ⇒
         complete("There are " +
-          s"form fields ${fields.map(x => x._1 + " -> " + x._2.size).mkString(", ")}")
+          s"form fields ${fields.map(x ⇒ x._1 + " -> " + x._2.size).mkString(", ")}")
       }
 
     // tests:
@@ -86,7 +86,7 @@ class FormFieldDirectivesExamplesSpec extends RoutingSpec {
   "formFieldSeq" in {
     //#formFieldSeq
     val route =
-      formFieldSeq { fields =>
+      formFieldSeq { fields ⇒
         def formFieldString(formField: (String, String)): String =
           s"""${formField._1} = '${formField._2}'"""
         complete(s"The form fields are ${fields.map(formFieldString).mkString(", ")}")

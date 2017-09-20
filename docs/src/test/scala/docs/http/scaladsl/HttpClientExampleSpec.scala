@@ -61,9 +61,9 @@ class HttpClientExampleSpec extends WordSpec with Matchers with CompileOnlySpec 
 
     // while API remains the same to consume dataBytes, now they're in memory already:
     val transformedData: Future[ExamplePerson] =
-      strictEntity flatMap { e =>
+      strictEntity flatMap { e ⇒
         e.dataBytes
-          .runFold(ByteString.empty) { case (acc, b) => acc ++ b }
+          .runFold(ByteString.empty) { case (acc, b) ⇒ acc ++ b }
           .map(parse)
       }
 
@@ -84,7 +84,7 @@ class HttpClientExampleSpec extends WordSpec with Matchers with CompileOnlySpec 
     val response1: HttpResponse = ??? // obtained from an HTTP call (see examples below)
 
     val discarded: DiscardedEntity = response1.discardEntityBytes()
-    discarded.future.onComplete { done => println("Entity discarded completely!") }
+    discarded.future.onComplete { done ⇒ println("Entity discarded completely!") }
 
     //#manual-entity-discard-example-1
   }
@@ -105,7 +105,7 @@ class HttpClientExampleSpec extends WordSpec with Matchers with CompileOnlySpec 
     val response1: HttpResponse = ??? // obtained from an HTTP call (see examples below)
 
     val discardingComplete: Future[Done] = response1.entity.dataBytes.runWith(Sink.ignore)
-    discardingComplete.onComplete(done => println("Entity discarded completely!"))
+    discardingComplete.onComplete(done ⇒ println("Entity discarded completely!"))
     //#manual-entity-discard-example-2
   }
 
@@ -148,10 +148,10 @@ class HttpClientExampleSpec extends WordSpec with Matchers with CompileOnlySpec 
         val responseFuture: Future[HttpResponse] = dispatchRequest(HttpRequest(uri = "/"))
 
         responseFuture.andThen {
-          case Success(_) => println("request succeeded")
-          case Failure(_) => println("request failed")
+          case Success(_) ⇒ println("request succeeded")
+          case Failure(_) ⇒ println("request failed")
         }.andThen {
-          case _ => system.terminate()
+          case _ ⇒ system.terminate()
         }
       }
     }
@@ -184,18 +184,18 @@ class HttpClientExampleSpec extends WordSpec with Matchers with CompileOnlySpec 
       Source.queue[(HttpRequest, Promise[HttpResponse])](QueueSize, OverflowStrategy.dropNew)
         .via(poolClientFlow)
         .toMat(Sink.foreach({
-          case ((Success(resp), p)) => p.success(resp)
-          case ((Failure(e), p))    => p.failure(e)
+          case ((Success(resp), p)) ⇒ p.success(resp)
+          case ((Failure(e), p))    ⇒ p.failure(e)
         }))(Keep.left)
         .run()
 
     def queueRequest(request: HttpRequest): Future[HttpResponse] = {
       val responsePromise = Promise[HttpResponse]()
       queue.offer(request -> responsePromise).flatMap {
-        case QueueOfferResult.Enqueued    => responsePromise.future
-        case QueueOfferResult.Dropped     => Future.failed(new RuntimeException("Queue overflowed. Try again later."))
-        case QueueOfferResult.Failure(ex) => Future.failed(ex)
-        case QueueOfferResult.QueueClosed => Future.failed(new RuntimeException("Queue was closed (pool shut down) while running the request. Try again later."))
+        case QueueOfferResult.Enqueued    ⇒ responsePromise.future
+        case QueueOfferResult.Dropped     ⇒ Future.failed(new RuntimeException("Queue overflowed. Try again later."))
+        case QueueOfferResult.Failure(ex) ⇒ Future.failed(ex)
+        case QueueOfferResult.QueueClosed ⇒ Future.failed(new RuntimeException("Queue was closed (pool shut down) while running the request. Try again later."))
       }
     }
 
@@ -237,7 +237,7 @@ class HttpClientExampleSpec extends WordSpec with Matchers with CompileOnlySpec 
         FormData.BodyPart.fromPath(fileToUpload.name, ContentTypes.`application/octet-stream`, fileToUpload.location)
 
       val body = FormData(bodyPart) // only one file per upload
-      Marshal(body).to[RequestEntity].map { entity => // use marshalling to create multipart/formdata entity
+      Marshal(body).to[RequestEntity].map { entity ⇒ // use marshalling to create multipart/formdata entity
         // build the request and annotate it with the original metadata
         HttpRequest(method = HttpMethods.POST, uri = "http://example.com/uploader", entity = entity) -> fileToUpload
       }
@@ -255,11 +255,11 @@ class HttpClientExampleSpec extends WordSpec with Matchers with CompileOnlySpec 
       // Note: responses will not come in in the same order as requests. The requests will be run on one of the
       // multiple pooled connections and may thus "overtake" each other.
       .runForeach {
-        case (Success(response), fileToUpload) =>
+        case (Success(response), fileToUpload) ⇒
           // TODO: also check for response status code
           println(s"Result for file: $fileToUpload was successful: $response")
           response.discardEntityBytes() // don't forget this
-        case (Failure(ex), fileToUpload) =>
+        case (Failure(ex), fileToUpload) ⇒
           println(s"Uploading file $fileToUpload failed with $ex")
       }
     //#host-level-streamed-example
@@ -306,11 +306,11 @@ class HttpClientExampleSpec extends WordSpec with Matchers with CompileOnlySpec 
       }
 
       def receive = {
-        case HttpResponse(StatusCodes.OK, headers, entity, _) =>
-          entity.dataBytes.runFold(ByteString(""))(_ ++ _).foreach { body =>
+        case HttpResponse(StatusCodes.OK, headers, entity, _) ⇒
+          entity.dataBytes.runFold(ByteString(""))(_ ++ _).foreach { body ⇒
             log.info("Got response, body: " + body.utf8String)
           }
-        case resp @ HttpResponse(code, _, _, _) =>
+        case resp @ HttpResponse(code, _, _, _) ⇒
           log.info("Request failed, response code: " + code)
           resp.discardEntityBytes()
       }

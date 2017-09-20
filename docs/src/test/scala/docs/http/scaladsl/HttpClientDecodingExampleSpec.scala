@@ -49,7 +49,7 @@ class HttpClientDecodingExampleSpec extends AkkaSpec with CompileOnlySpec with S
     val futureResponses: Future[Seq[HttpResponse]] =
       Future.traverse(requests)(http.singleRequest(_).map(decodeResponse))
 
-    futureResponses.futureValue.foreach { resp =>
+    futureResponses.futureValue.foreach { resp ⇒
       system.log.info(s"response is ${resp.toStrict(1.second).futureValue}")
     }
 
