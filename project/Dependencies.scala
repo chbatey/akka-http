@@ -31,44 +31,43 @@ object Dependencies {
   )
   import Versions._
 
-
   object Compile {
-    val scalaXml      = "org.scala-lang.modules"      %% "scala-xml"                   % "1.0.6" // Scala License
-    val scalaReflect  = ScalaVersionDependentModuleID.versioned("org.scala-lang" % "scala-reflect" % _) // Scala License
+    val scalaXml = "org.scala-lang.modules" %% "scala-xml" % "1.0.6" // Scala License
+    val scalaReflect = ScalaVersionDependentModuleID.versioned("org.scala-lang" % "scala-reflect" % _) // Scala License
 
     // ssl-config
-    val sslConfigAkka = "com.typesafe"               %% "ssl-config-akka"              % "0.2.2"       // ApacheV2
+    val sslConfigAkka = "com.typesafe" %% "ssl-config-akka" % "0.2.2" // ApacheV2
 
     // For akka-http spray-json support
-    val sprayJson   = "io.spray"                     %% "spray-json"                   % "1.3.3"       // ApacheV2
+    val sprayJson = "io.spray" %% "spray-json" % "1.3.3" // ApacheV2
 
     // For akka-http-jackson support
-    val jackson     = "com.fasterxml.jackson.core"    % "jackson-databind"             % jacksonVersion // ApacheV2
+    val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion // ApacheV2
 
     // For akka-http-testkit-java
-    val junit       = "junit"                         % "junit"                        % junitVersion  // Common Public License 1.0
+    val junit = "junit" % "junit" % junitVersion // Common Public License 1.0
 
-    val hpack       = "com.twitter"                   % "hpack"                        % "1.0.2"       // ApacheV2
+    val hpack = "com.twitter" % "hpack" % "1.0.2" // ApacheV2
 
-    val alpnApi     = "org.eclipse.jetty.alpn"        % "alpn-api"                     % "1.1.3.v20160715" // ApacheV2
+    val alpnApi = "org.eclipse.jetty.alpn" % "alpn-api" % "1.1.3.v20160715" // ApacheV2
 
     object Docs {
-      val sprayJson   = Compile.sprayJson                                                                    % "test"
-      val gson        = "com.google.code.gson"             % "gson"                    % "2.3.1"             % "test"
-      val jacksonXml  = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-xml"  % jacksonVersion      % "test" // ApacheV2
+      val sprayJson = Compile.sprayJson % "test"
+      val gson = "com.google.code.gson" % "gson" % "2.3.1" % "test"
+      val jacksonXml = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-xml" % jacksonVersion % "test" // ApacheV2
     }
 
     object Test {
-      val junit        = Compile.junit                                                                       % "test" // Common Public License 1.0
-      val scalatest    = Def.setting { "org.scalatest"  %% "scalatest"   % scalaTestVersion.value   % "test" }      // ApacheV2
-      val specs2       = Def.setting { "org.specs2"     %% "specs2-core" % specs2Version.value      % "test" }      // MIT
-      val scalacheck   = Def.setting { "org.scalacheck" %% "scalacheck"  % scalaCheckVersion.value  % "test" }      // New BSD
-      val junitIntf    = "com.novocode"                % "junit-interface"              % "0.11"             % "test" // MIT
-      val sprayJson    = Compile.sprayJson                                                                   % "test" // ApacheV2
+      val junit = Compile.junit % "test" // Common Public License 1.0
+      val scalatest = Def.setting { "org.scalatest" %% "scalatest" % scalaTestVersion.value % "test" } // ApacheV2
+      val specs2 = Def.setting { "org.specs2" %% "specs2-core" % specs2Version.value % "test" } // MIT
+      val scalacheck = Def.setting { "org.scalacheck" %% "scalacheck" % scalaCheckVersion.value % "test" } // New BSD
+      val junitIntf = "com.novocode" % "junit-interface" % "0.11" % "test" // MIT
+      val sprayJson = Compile.sprayJson % "test" // ApacheV2
 
       // HTTP/2
-      val alpnAgent    = "org.mortbay.jetty.alpn"      % "jetty-alpn-agent"             % "2.0.6"            % "test" // ApacheV2
-      val h2spec       = "io.github.summerwind"        % h2specName                     % h2specVersion      % "test" from(h2specUrl) // MIT
+      val alpnAgent = "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % "2.0.6" % "test" // ApacheV2
+      val h2spec = "io.github.summerwind" % h2specName % h2specVersion % "test" from (h2specUrl) // MIT
     }
   }
 
@@ -80,7 +79,7 @@ object Dependencies {
     DependencyHelpers.versionDependentDeps(
       Dependencies.Compile.scalaReflect % "provided"
     ),
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.fullMapped(nominalScalaVersion))
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )
 
   lazy val httpCore = l ++= Seq(
@@ -95,8 +94,8 @@ object Dependencies {
 
   lazy val httpTestkit = l ++= Seq(
     Test.junit, Test.junitIntf, Compile.junit % "provided",
-    Test.scalatest.value.copy(configurations = Some("provided; test")),
-    Test.specs2.value.copy(configurations = Some("provided; test"))
+    Test.scalatest.value.withConfigurations(Some("provided; test")),
+    Test.specs2.value.withConfigurations(Some("provided; test"))
   )
 
   lazy val httpTests = l ++= Seq(Test.junit, Test.scalatest.value, Test.junitIntf)
@@ -113,18 +112,17 @@ object Dependencies {
   lazy val docs = l ++= Seq(Docs.sprayJson, Docs.gson, Docs.jacksonXml)
 }
 
-
 object DependencyHelpers {
-  case class ScalaVersionDependentModuleID(modules: String => Seq[ModuleID]) {
+  case class ScalaVersionDependentModuleID(modules: String ⇒ Seq[ModuleID]) {
     def %(config: String): ScalaVersionDependentModuleID =
-      ScalaVersionDependentModuleID(version => modules(version).map(_ % config))
+      ScalaVersionDependentModuleID(version ⇒ modules(version).map(_ % config))
   }
   object ScalaVersionDependentModuleID {
-    implicit def liftConstantModule(mod: ModuleID): ScalaVersionDependentModuleID = versioned(_ => mod)
+    implicit def liftConstantModule(mod: ModuleID): ScalaVersionDependentModuleID = versioned(_ ⇒ mod)
 
-    def versioned(f: String => ModuleID): ScalaVersionDependentModuleID = ScalaVersionDependentModuleID(v => Seq(f(v)))
+    def versioned(f: String ⇒ ModuleID): ScalaVersionDependentModuleID = ScalaVersionDependentModuleID(v ⇒ Seq(f(v)))
     def fromPF(f: PartialFunction[String, ModuleID]): ScalaVersionDependentModuleID =
-      ScalaVersionDependentModuleID(version => if (f.isDefinedAt(version)) Seq(f(version)) else Nil)
+      ScalaVersionDependentModuleID(version ⇒ if (f.isDefinedAt(version)) Seq(f(version)) else Nil)
   }
 
   /**
@@ -132,17 +130,17 @@ object DependencyHelpers {
    * dependent entries.
    */
   def versionDependentDeps(modules: ScalaVersionDependentModuleID*): Def.Setting[Seq[ModuleID]] =
-    libraryDependencies ++= scalaVersion(version => modules.flatMap(m => m.modules(version))).value
+    libraryDependencies ++= scalaVersion(version ⇒ modules.flatMap(m ⇒ m.modules(version))).value
 
   val ScalaVersion = """\d\.\d+\.\d+(?:-(?:M|RC)\d+)?""".r
-  val nominalScalaVersion: String => String = {
+  val nominalScalaVersion: String ⇒ String = {
     // matches:
     // 2.12.0-M1
     // 2.12.0-RC1
     // 2.12.0
-    case version @ ScalaVersion() => version
+    case version @ ScalaVersion() ⇒ version
     // transforms 2.12.0-custom-version to 2.12.0
-    case version => version.takeWhile(_ != '-')
+    case version                  ⇒ version.takeWhile(_ != '-')
   }
 
   // OS name for Go binaries
